@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.UI;
+using Image = UnityEngine.UI.Image;
 
 public class GameValuesController : MonoBehaviour
 {
@@ -20,6 +21,9 @@ public class GameValuesController : MonoBehaviour
         public bool enableDisplay = false;   // Включить отображение
         public DisplayType displayType;      // Тип отображения
         public Text text;
+        public Image bar;
+        public Image disk;
+        public GameObject[] objects;
 
         // Управление изменением значения во времени
         public bool enableTimeBasedChange = false;  // Включить изменение со временем
@@ -58,6 +62,14 @@ public class GameValuesController : MonoBehaviour
     }
 
     public GameParameter[] parameters;  // Массив параметров
+
+    private void Start()
+    {
+        foreach (GameParameter parameter in parameters)
+        {
+            parameter.ResetToDefault();
+        }
+    }
 
     void Update()
     {
@@ -105,19 +117,19 @@ public class GameValuesController : MonoBehaviour
         switch (parameter.displayType)
         {
             case DisplayType.Disk:
-                // Логика отображения в виде диска
+                // Логика скоро появится
                 DisplayAsDisk(parameter);
                 break;
             case DisplayType.Bar:
-                // Логика отображения в виде шкалы
+                // Логика скоро появится
                 DisplayAsBar(parameter);
                 break;
             case DisplayType.Number:
-                // Логика отображения в виде числа
+                // Логика скоро появится
                 DisplayAsNumber(parameter);
                 break;
             case DisplayType.Objects:
-                // Логика отображения с помощью объектов (например, иконок)
+                // Логика скоро появится
                 DisplayAsObjects(parameter);
                 break;
         }
@@ -126,28 +138,33 @@ public class GameValuesController : MonoBehaviour
     // Методы для различных типов отображения (здесь просто заглушки)
     private void DisplayAsDisk(GameParameter parameter)
     {
-        // Пример: отобразить круговой индикатор на UI
+        parameter.disk.fillAmount = parameter.currentValue / parameter.maxValue;
         Debug.Log($"Display {parameter.parameterName} as Disk with value {parameter.currentValue}");
     }
 
     private void DisplayAsBar(GameParameter parameter)
     {
-        // Пример: отобразить шкалу (например, полоску здоровья)
+        parameter.bar.fillAmount = parameter.currentValue / parameter.maxValue;
         Debug.Log($"Display {parameter.parameterName} as Bar with value {parameter.currentValue}");
     }
 
     private void DisplayAsNumber(GameParameter parameter)
     {
-        // Пример: отобразить числовое значение (например, количество очков)
+        parameter.text.text = Mathf.Round(parameter.currentValue).ToString();
         Debug.Log($"Display {parameter.parameterName} as Number with value {parameter.currentValue}");
     }
 
     private void DisplayAsObjects(GameParameter parameter)
     {
-        // Пример: отобразить объекты (например, количество сердечек)
+        int activeObjectsCount = Mathf.CeilToInt(parameter.objects.Length * (parameter.currentValue / parameter.maxValue));
+
+        for (int i = 0; i < parameter.objects.Length; i++)
+        {
+            parameter.objects[i].SetActive(i < activeObjectsCount);
+        }
+
         Debug.Log($"Display {parameter.parameterName} as Objects with value {parameter.currentValue}");
     }
-
     // Метод для сброса всех параметров к значениям по умолчанию
     public void ResetAllToDefault()
     {
